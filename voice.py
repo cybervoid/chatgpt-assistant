@@ -1,11 +1,13 @@
 import openai
-import pyttsx3
+import subprocess
 import speech_recognition as sr
 import time
+import os
+from dotenv import load_dotenv
 
 
-openai.api_key=""
-engine = pyttsx3.init()
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def transcribe_audio_to_text(audio_file):
     r = sr.Recognizer()
@@ -30,19 +32,19 @@ def generate_response(text):
     return response.choices[0].text
     
 def speak(text):
-    engine.say(text)
-    engine.runAndWait()
+    subprocess.call(['say', text])
+
 
 def main():
     print("Testing")
     while True:
-        print("Say 'genius' to start recording your question ...")
+        print("Say 'hello' to start recording your question ...")
         with  sr.Microphone() as source:
             recognizer = sr.Recognizer()
             audio = recognizer.listen(source)
             try:
                 transcription =  recognizer.recognize_google(audio)
-                if transcription.lower() == "genius":
+                if transcription.lower() == "hello":
                     print("Say your question...")
 
                     with sr.Microphone() as source:
@@ -61,18 +63,12 @@ def main():
                         response = generate_response(text)
                         print(response)
                         speak(response)
-
+                    else:
+                        print("No text")
+                        time.sleep(1)
             except Exception as e:
                 print(e)
 
-        if text:
-            print(text)
-            response = generate_response(text)
-            print(response)
-            speak(response)
-        else:
-            print("No text")
-            time.sleep(1)
 
 
 if __name__ == "__main__":
